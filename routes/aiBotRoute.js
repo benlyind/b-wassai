@@ -131,9 +131,10 @@ router.post('/turn_off_on_wa_bot', userValidator, async (req, res) => {
 router.get('/get_wa_ai_bot', userValidator, async (req, res) => {
     try {
         const resData = await query(`
-        SELECT wa.*, inst.name AS client_name
+        SELECT wa.*, inst.name AS client_name, train_inst.name as train_instruction_name
         FROM wa_ai_bot wa
         LEFT JOIN instance inst ON wa.client_id = inst.client_id
+        LEFT JOIN train_instructions train_inst ON train_inst.id = wa.train_instruction_id
         WHERE wa.uid = ?
       `, [req.decode.uid]);
 
