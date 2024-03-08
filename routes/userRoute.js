@@ -11,7 +11,7 @@ const router = Router()
 router.post('/signup', controller.signup)
 router.post('/login', controller.login)
 
-// update gem chatbot 
+// update gem chatbot
 router.post('/update_gem_chatbot', userValidator, async (req, res) => {
     try {
         const { status, id } = req.body
@@ -23,7 +23,7 @@ router.post('/update_gem_chatbot', userValidator, async (req, res) => {
     }
 })
 
-// del bot 
+// del bot
 router.post('/del_bot_gemini', userValidator, async (req, res) => {
     try {
         const { id } = req.body
@@ -36,7 +36,7 @@ router.post('/del_bot_gemini', userValidator, async (req, res) => {
     }
 })
 
-// get bot list 
+// get bot list
 router.get('/get_gem_bot', userValidator, async (req, res) => {
     try {
         const data = await query(`
@@ -54,7 +54,7 @@ router.get('/get_gem_bot', userValidator, async (req, res) => {
     }
 })
 
-// add new gemini chatbot 
+// add new gemini chatbot
 router.post('/add_gemini_chatbot', userValidator, async (req, res) => {
     try {
 
@@ -85,7 +85,7 @@ router.post('/add_gemini_chatbot', userValidator, async (req, res) => {
     }
 })
 
-// update api keys gemeini 
+// update api keys gemeini
 router.post('/update_gemini_keys', userValidator, async (req, res) => {
     try {
         const { gemini_keys } = req.body
@@ -101,7 +101,7 @@ router.post('/update_gemini_keys', userValidator, async (req, res) => {
 })
 
 
-// update user bard keys 
+// update user bard keys
 router.post("/update_user_bard", userValidator, async (req, res) => {
     try {
         const body = req.body
@@ -119,7 +119,7 @@ router.post("/update_user_bard", userValidator, async (req, res) => {
     }
 })
 
-// update keys 
+// update keys
 router.post('/update_openai_keys', userValidator, async (req, res) => {
     try {
         await query(`UPDATE user SET my_openai_api = ? WHERE uid = ?`, [req.body.keys, req.decode.uid])
@@ -131,7 +131,7 @@ router.post('/update_openai_keys', userValidator, async (req, res) => {
     }
 })
 
-// check database connection 
+// check database connection
 router.post("/check_db_sql", userValidator, async (req, res) => {
     try {
         const { ip, username, port, database, password, table } = req.body
@@ -147,7 +147,7 @@ router.post("/check_db_sql", userValidator, async (req, res) => {
     }
 })
 
-// return web to data 
+// return web to data
 router.post('/return_web_data', userValidator, async (req, res) => {
     try {
         const resData = await processUrlAndConvertToText(req.body.webLink)
@@ -158,7 +158,7 @@ router.post('/return_web_data', userValidator, async (req, res) => {
     }
 })
 
-// return image data 
+// return image data
 router.post('/return_image', userValidator, async (req, res) => {
     try {
         if (!req.files || req.files.file === undefined) {
@@ -175,7 +175,7 @@ router.post('/return_image', userValidator, async (req, res) => {
     }
 })
 
-// return train data 
+// return train data
 router.post('/return_train', userValidator, async (req, res) => {
     try {
         if (!req.files || req.files.file === undefined) {
@@ -287,21 +287,23 @@ router.post('/send_recovery', async (req, res) => {
 
 router.get('/get_dash', userValidator, async (req, res) => {
     try {
-        // get plan name 
+        // get plan name
         const getUser = await query(`SELECT * FROM user WHERE uid = ?`, [req.decode.uid])
         const plan = getUser[0].plan ? JSON.parse(getUser[0].plan).plan_name : false
 
-        // getting instances 
+        // getting instances
         const instance = await query(`SELECT * FROM instance WHERE uid = ?`, [req.decode.uid])
 
 
-        // getting bots 
+        // getting bots
         const bots = await query(`SELECT * FROM aibot WHERE uid = ? and active = ?`, [req.decode.uid, 1])
+
+        const whatsapp_bot = await query(`SELECT * FROM wa_ai_bot WHERE uid = ? and active = ?`, [req.decode.uid, 1])
 
         const pendingPings = await query(`SELECT * FROM ping WHERE uid = ? and admin_reply = ?`, [req.decode.uid, null])
 
 
-        // getting 24 hours data orders 
+        // getting 24 hours data orders
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const formattedDateTime = twentyFourHoursAgo.toISOString().slice(0, 19).replace('T', ' ');
         const dailyGenImg = await query(`SELECT * FROM generated_images WHERE createdAt >= ? and uid = ?`, [formattedDateTime, req.decode.uid])
@@ -316,11 +318,11 @@ router.get('/get_dash', userValidator, async (req, res) => {
         const formattedDateTimeYear = oneYearAgo.toISOString().slice(0, 19).replace('T', ' ');
         const yearlyGenImg = await query(`SELECT * FROM generated_images WHERE createdAt >= ? and uid = ?`, [formattedDateTimeYear, req.decode.uid])
 
-        // total orders 
+        // total orders
         const allGenImg = await query(`SELECT * FROM generated_images WHERE uid = ?`, [req.decode.uid])
 
 
-        // getting 24 hours data orders 
+        // getting 24 hours data orders
         const twentyFourHoursAgoWP = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const formattedDateTimeWP = twentyFourHoursAgoWP.toISOString().slice(0, 19).replace('T', ' ');
         const dailyAutoBlog = await query(`SELECT * FROM generated_wp WHERE createdAt >= ? and uid = ?`, [formattedDateTimeWP, req.decode.uid])
@@ -335,12 +337,12 @@ router.get('/get_dash', userValidator, async (req, res) => {
         const formattedDateTimeYearAP = oneYearAgoAP.toISOString().slice(0, 19).replace('T', ' ');
         const yearlyAutoBlog = await query(`SELECT * FROM generated_wp WHERE createdAt >= ? and uid = ?`, [formattedDateTimeYearAP, req.decode.uid])
 
-        // total orders 
+        // total orders
         const allAutoBlog = await query(`SELECT * FROM generated_wp WHERE uid = ?`, [req.decode.uid])
 
 
 
-        // getting 24 hours data orders 
+        // getting 24 hours data orders
         const twentyFourHoursAgostt = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const formattedDateTimestt = twentyFourHoursAgostt.toISOString().slice(0, 19).replace('T', ' ');
         const dailyStt = await query(`SELECT * FROM stt WHERE createdAt >= ? and uid = ?`, [formattedDateTimestt, req.decode.uid])
@@ -355,11 +357,11 @@ router.get('/get_dash', userValidator, async (req, res) => {
         const formattedDateTimeYeastt = oneYearAgostt.toISOString().slice(0, 19).replace('T', ' ');
         const yearlyStt = await query(`SELECT * FROM stt WHERE createdAt >= ? and uid = ?`, [formattedDateTimeYeastt, req.decode.uid])
 
-        // total orders 
+        // total orders
         const allStt = await query(`SELECT * FROM stt WHERE uid = ?`, [req.decode.uid])
 
 
-        // getting 24 hours data orders 
+        // getting 24 hours data orders
         const twentyFourHoursAgotts = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const formattedDateTimetts = twentyFourHoursAgotts.toISOString().slice(0, 19).replace('T', ' ');
         const dailyTTs = await query(`SELECT * FROM tts WHERE createdAt >= ? and uid = ?`, [formattedDateTimetts, req.decode.uid])
@@ -374,7 +376,7 @@ router.get('/get_dash', userValidator, async (req, res) => {
         const formattedDateTimeYeatts = oneYearAgotts.toISOString().slice(0, 19).replace('T', ' ');
         const yearlyTTs = await query(`SELECT * FROM tts WHERE createdAt >= ? and uid = ?`, [formattedDateTimeYeatts, req.decode.uid])
 
-        // total orders 
+        // total orders
         const allTTs = await query(`SELECT * FROM tts WHERE uid = ?`, [req.decode.uid])
 
         res.json({
@@ -382,6 +384,7 @@ router.get('/get_dash', userValidator, async (req, res) => {
             plan,
             instance: instance.length,
             bots: bots.length,
+            whatsapp_bot: whatsapp_bot.length,
             pendingPings: pendingPings.length,
             dailyGenImg: dailyGenImg.length,
             monthlyGenImg: monthlyGenImg.length,
@@ -408,7 +411,7 @@ router.get('/get_dash', userValidator, async (req, res) => {
     }
 })
 
-// add flow group 
+// add flow group
 router.post('/add_flow_group', userValidator, async (req, res) => {
     try {
         const { name } = req.body
@@ -416,7 +419,7 @@ router.post('/add_flow_group', userValidator, async (req, res) => {
             return res.json({ success: false, msg: "Please enter a group name" })
         }
 
-        // check ext grp name 
+        // check ext grp name
         const grpData = await query(`SELECT * FROM custom_reply_flow_group WHERE title = ?`, [name])
         if (grpData.length > 0) {
             return res.json({ success: false, msg: "Duplicate group found. Please choose another group name" })
@@ -436,7 +439,7 @@ router.post('/add_flow_group', userValidator, async (req, res) => {
     }
 })
 
-// get all grups 
+// get all grups
 router.get("/get_groups", userValidator, async (req, res) => {
     try {
         const data = await query(`SELECT * FROM custom_reply_flow_group WHERE uid = ?`, [req.decode.uid])
@@ -447,7 +450,7 @@ router.get("/get_groups", userValidator, async (req, res) => {
     }
 })
 
-// del a group  
+// del a group
 router.post('/del_group', userValidator, async (req, res) => {
     try {
         const getJobId = await query(`SELECT * FROM custom_reply_flow_group WHERE id = ?`, [req.body.id])
@@ -461,7 +464,7 @@ router.post('/del_group', userValidator, async (req, res) => {
     }
 })
 
-// add flow msg 
+// add flow msg
 router.post('/add_flow_msg', userValidator, async (req, res) => {
     try {
         const { outMsg, group_id, inMsg, exact } = req.body
@@ -484,7 +487,7 @@ router.post('/add_flow_msg', userValidator, async (req, res) => {
     }
 })
 
-// get messages by group id 
+// get messages by group id
 router.post('/get_flow_by_group', userValidator, async (req, res) => {
     try {
         const { groupId } = req.body
@@ -497,7 +500,7 @@ router.post('/get_flow_by_group', userValidator, async (req, res) => {
     }
 })
 
-// delete flow message 
+// delete flow message
 router.post('/del_flow_message', userValidator, async (req, res) => {
     try {
         const { id } = req.body
