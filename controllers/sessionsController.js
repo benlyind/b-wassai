@@ -1,8 +1,6 @@
 import { isSessionExists, createSession, getSession, deleteSession } from '../middlewares/req.js'
 import response from './../response.js'
 import query from '../database/dbpromise.js'
-import { isPlanExpired } from '../functions/function.js'
-
 
 const find = (req, res) => {
     response(res, 200, true, 'Session found.')
@@ -40,12 +38,7 @@ const add = async (req, res) => {
         return response(res, 409, false, 'Session already exists, please use another id.')
     }
 
-    if (isPlanExpired(req.decode.uid)) {
-        return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
-    }
-
     // check wa instance
-
     try {
         const instance = await query(`SELECT * FROM instance WHERE uid = ?`, [req.decode.uid])
         const plan = await query(`SELECT plan FROM user WHERE uid = ?`, [req.decode.uid]).then(rows => {

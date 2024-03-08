@@ -88,8 +88,8 @@ const webhookWa = async (m, wa, sessionId) => {
         const latestUser = await query(`SELECT * FROM user WHERE uid = ?`, [uid]);
         const leftWords = latestUser[0]?.gpt_words_limit;
         const userPlan = JSON.parse(latestUser[0]?.plan)
-
-        if (isPlanExpired(uid)) {
+        const isExpire = await isPlanExpired(uid)
+        if (isExpire) {
             console.log(`user ${latestUser[0]?.name} plan is expired, turn off ai bot`)
             try {
                 await query(`UPDATE wa_ai_bot SET active = ? WHERE uid = ?`, [0, uid]);
