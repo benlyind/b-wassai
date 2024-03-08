@@ -103,14 +103,15 @@ const webhookWa = async (m, wa, sessionId) => {
 
         if (parseInt(leftWords) < 10) {
             await query(`UPDATE wa_ai_bot SET active = ? WHERE uid = ?`, [0, uid]);
-            const session = getSession(sessionId);
 
+            /* const session = getSession(sessionId);
             try {
                 await session.logout();
             } catch {
             } finally {
                 deleteSession(sessionId, session.isLegacy);
-            }
+            } */
+
             console.log(`User ${uid} found less than 10 messages, so deleting the instance and AI bot.`);
             return;
         }
