@@ -33,10 +33,27 @@ const status = async (req, res) => {
 const add = async (req, res) => {
     const { id, isLegacy } = req.body
 
-    // checking user 
+    // checking user
 
     if (isSessionExists(id)) {
         return response(res, 409, false, 'Session already exists, please use another id.')
+    }
+
+    console.log(req.decode.uid)
+
+    // check wa instance
+
+    try {
+        const instance = await query(`SELECT * FROM instance WHERE uid = ?`, [req.decode.uid])
+        const plan = await query(`SELECT plan FROM user WHERE uid = ?`, [req.decode.uid]).then(rows => {
+            return JSON.parse(Object.values(JSON.parse(JSON.stringify(rows)))[0].plan);
+        })
+        if(instance.length >= plan.instance_limit) {
+            return response(res, 409, false, 'Instance Limit Reached')
+        }
+    } catch (error) {
+        console.error(error)
+        return response(res, 409, false, 'Please check if you have plan!')
     }
 
     // adding new client in database for this user
@@ -63,7 +80,7 @@ const del = async (req, res) => {
     response(res, 200, true, 'The session has been successfully deleted.', { msg: "The session was deleted" })
 }
 
-// get all users sessions 
+// get all users sessions
 const getUserSessions = async (req, res) => {
     try {
         const data = await query(`SELECT * FROM instance WHERE uid = ?`, [req.decode.uid])
