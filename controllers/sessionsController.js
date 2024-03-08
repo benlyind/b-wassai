@@ -1,6 +1,7 @@
 import { isSessionExists, createSession, getSession, deleteSession } from '../middlewares/req.js'
 import response from './../response.js'
 import query from '../database/dbpromise.js'
+import { isPlanExpired } from '../functions/function.js'
 
 
 const find = (req, res) => {
@@ -39,7 +40,9 @@ const add = async (req, res) => {
         return response(res, 409, false, 'Session already exists, please use another id.')
     }
 
-    console.log(req.decode.uid)
+    if (isPlanExpired(req.decode.uid)) {
+        return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+    }
 
     // check wa instance
 
@@ -48,7 +51,7 @@ const add = async (req, res) => {
         const plan = await query(`SELECT plan FROM user WHERE uid = ?`, [req.decode.uid]).then(rows => {
             return JSON.parse(Object.values(JSON.parse(JSON.stringify(rows)))[0].plan);
         })
-        if(instance.length >= plan.instance_limit) {
+        if (instance.length >= plan.instance_limit) {
             return response(res, 409, false, 'Instance Limit Reached')
         }
     } catch (error) {
@@ -66,10 +69,8 @@ const add = async (req, res) => {
 
 const del = async (req, res) => {
     const { id } = req.params
-    console.log("hey man")
-    const session = getSession(id)
 
-    console.log({ session })
+    const session = getSession(id)
 
     try {
         await session.logout()

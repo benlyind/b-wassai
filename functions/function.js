@@ -1542,4 +1542,9 @@ function readAndProcessConversations(filePath) {
   });
 }
 
-export { updatePlan, decreaseGptLimit, returnTokenTxt2Img, checkHamWizToken, getReplFromGemini, returnImageText, openAitextWABot, pushObjectToArrayAndDeleteOld, readAndProcessConversations, createPathAndFileIfNotExists, checkDatabase, processUrlAndConvertToText, createJsonFile, returnTrain, createJsonFileEmbed, deleteFileIfExists, sendRecoveryEmail, rzCapturePayment, createOrder, openAiText, readJsonFile, createBlogPost, postToWordpress, getAllCategory, returnPost, checkWpAuth, getUserPlan, downloadImages, encodeObject, openAiImage, getWordCount, removeFileIfExists, daysDiff, doesFileExist, decodeObject }
+const isPlanExpired = async (uid) => {
+    const user = await query(`SELECT * FROM user WHERE uid = ?`, [uid]);
+    return new Date() > new Date(user[0]?.plan_expire.replace(' ', 'T')) ? true : false;
+}
+
+export { isPlanExpired, updatePlan, decreaseGptLimit, returnTokenTxt2Img, checkHamWizToken, getReplFromGemini, returnImageText, openAitextWABot, pushObjectToArrayAndDeleteOld, readAndProcessConversations, createPathAndFileIfNotExists, checkDatabase, processUrlAndConvertToText, createJsonFile, returnTrain, createJsonFileEmbed, deleteFileIfExists, sendRecoveryEmail, rzCapturePayment, createOrder, openAiText, readJsonFile, createBlogPost, postToWordpress, getAllCategory, returnPost, checkWpAuth, getUserPlan, downloadImages, encodeObject, openAiImage, getWordCount, removeFileIfExists, daysDiff, doesFileExist, decodeObject }

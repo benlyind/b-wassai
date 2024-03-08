@@ -2,6 +2,7 @@ import userValidator from '../middlewares/userValidator.js'
 import { checkIfPlanExpire, checkGptWordsLimit } from '../middlewares/planValidator.js'
 import { Router } from 'express'
 import query from '../database/dbpromise.js'
+import { isPlanExpired } from '../functions/function.js'
 
 const router = Router()
 
@@ -117,6 +118,9 @@ router.post('/del_wa_bot', userValidator, async (req, res) => {
 // update bot activeness
 router.post('/turn_off_on_wa_bot', userValidator, async (req, res) => {
     try {
+        if (isPlanExpired(req.decode.uid)) {
+            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+        }
         const { id, active } = req.body
         await query(`UPDATE wa_ai_bot SET active = ? WHERE id = ?`, [active, id])
         res.json({ success: true, msg: "Bot was updated" })
@@ -219,6 +223,9 @@ router.post('/add_chatbot_wa', userValidator, checkIfPlanExpire, checkGptWordsLi
     try {
         const { bot_title, client_id, text_train_data, reply_in_groups, doc_text_train, train_instruction_id, openai_model, group_id, enable_typing, reaction, botTypeValue, sql_connection } = req.body
 
+        if (isPlanExpired(req.decode.uid)) {
+            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+        }
 
         // checking bard bot
         const checkBard = await query(`SELECT * FROM bard_wa_chatbot WHERE client_id = ?`, [client_id])
@@ -275,6 +282,10 @@ router.post('/update_bot', userValidator, checkIfPlanExpire, checkGptWordsLimit,
 
         if (!body.name || !body.train_data || !body.client_id) {
             return res.json({ msg: "Send all required fields for editing." });
+        }
+
+        if (isPlanExpired(req.decode.uid)) {
+            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
         }
 
         await query(`

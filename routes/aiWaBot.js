@@ -7,6 +7,7 @@ import {
     readAndProcessConversations,
     checkDatabase,
     openAitextWABot,
+    isPlanExpired,
 } from '../functions/function.js';
 import { deleteSession, getSession, sendMessage } from '../middlewares/req.js';
 
@@ -87,10 +88,10 @@ const webhookWa = async (m, wa, sessionId) => {
         const latestUser = await query(`SELECT * FROM user WHERE uid = ?`, [uid]);
         const leftWords = latestUser[0]?.gpt_words_limit;
         const userPlan = JSON.parse(latestUser[0]?.plan)
-        const isExpired = new Date() > new Date(latestUser[0]?.plan_expire.replace(' ', 'T')) ? true : false;
 
-        if (isExpired) {
-            console.log(`user ${latestUser[0]?.name} plan is expired`)
+        if (isPlanExpired(uid)) {
+            console.log(`user ${latestUser[0]?.name} plan is expired, turn off ai bot`)
+            await query(`UPDATE wa_ai_bot SET active = ? WHERE uid = ?`, [0, uid]);
             return;
         }
 
