@@ -119,7 +119,7 @@ router.post('/del_wa_bot', userValidator, async (req, res) => {
 router.post('/turn_off_on_wa_bot', userValidator, async (req, res) => {
     try {
         if (isPlanExpired(req.decode.uid)) {
-            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+            return res.json({ success: false, msg: "Your Plan is Expired, please contact administrator." })
         }
         const { id, active } = req.body
         await query(`UPDATE wa_ai_bot SET active = ? WHERE id = ?`, [active, id])
@@ -224,7 +224,7 @@ router.post('/add_chatbot_wa', userValidator, checkIfPlanExpire, checkGptWordsLi
         const { bot_title, client_id, text_train_data, reply_in_groups, doc_text_train, train_instruction_id, openai_model, group_id, enable_typing, reaction, botTypeValue, sql_connection } = req.body
 
         if (isPlanExpired(req.decode.uid)) {
-            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+            return res.json({ success: false, msg: "Your Plan is Expired, please contact administrator." })
         }
 
         // checking bard bot
@@ -285,7 +285,7 @@ router.post('/update_bot', userValidator, checkIfPlanExpire, checkGptWordsLimit,
         }
 
         if (isPlanExpired(req.decode.uid)) {
-            return response(res, 409, false, 'Your Plan is Expired, please contact administrator.')
+            return res.json({ success: false, msg: "Your Plan is Expired, please contact administrator." })
         }
 
         await query(`

@@ -91,7 +91,11 @@ const webhookWa = async (m, wa, sessionId) => {
 
         if (isPlanExpired(uid)) {
             console.log(`user ${latestUser[0]?.name} plan is expired, turn off ai bot`)
-            await query(`UPDATE wa_ai_bot SET active = ? WHERE uid = ?`, [0, uid]);
+            try {
+                await query(`UPDATE wa_ai_bot SET active = ? WHERE uid = ?`, [0, uid]);
+            } catch (error) {
+
+            }
             return;
         }
 
