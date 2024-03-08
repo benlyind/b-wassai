@@ -70,7 +70,6 @@ function replacePlaceholders(originalText, username, mobile) {
 
 const webhookWa = async (m, wa, sessionId) => {
     try {
-        console.log('sesid',sessionId)
         const { uid, client_id } = decodeObject(sessionId);
         const getBots = await query(`SELECT wa_ai_bot.*,train_instructions.instruction FROM wa_ai_bot LEFT JOIN train_instructions ON train_instructions.id = wa_ai_bot.train_instruction_id WHERE client_id = ? AND wa_ai_bot.active = ?`, [sessionId, 1]);
 
@@ -87,6 +86,13 @@ const webhookWa = async (m, wa, sessionId) => {
 
         const latestUser = await query(`SELECT * FROM user WHERE uid = ?`, [uid]);
         const leftWords = latestUser[0]?.gpt_words_limit;
+        const userPlan = JSON.parse(latestUser[0]?.plan)
+        const isExpired = new Date() > new Date(latestUser[0]?.plan_expire.replace(' ', 'T')) ? true : false;
+
+        if (isExpired) {
+            console.log(`user ${latestUser[0]?.name} plan is expired`)
+            return;
+        }
 
         const senderJid = m.messages[0]?.key?.remoteJid || m.messages[0]?.key?.participant
 
@@ -111,8 +117,6 @@ const webhookWa = async (m, wa, sessionId) => {
         const isMgsGroup = m.messages[0]?.message?.senderKeyDistributionMessage ? true : false
 
         const pushName = m.messages[0]?.pushName
-
-
 
         if (isMgsGroup && !replyInGroup) {
             console.log("message in group however it was turned of in the bot")
@@ -172,7 +176,6 @@ const webhookWa = async (m, wa, sessionId) => {
         const useMyAPI = latestUser[0]?.use_my_openai
         const myOwnAPI = latestUser[0]?.my_openai_api
 
-        const userPlan = JSON.parse(latestUser[0]?.plan)
         const useMineInPlan = userPlan?.allow_own_openai > 0 ? true : false
 
         if (useMineInPlan && !myOwnAPI) {
