@@ -39,7 +39,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.3",
     "officeparser": "^4.0.4",
-    "openai": "^3.3.0",
+    "openai": "^4.28.4",
     "pino": "^7.10.0",
     "qrcode": "^1.5.0",
     "qrcode-terminal": "^0.12.0",

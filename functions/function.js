@@ -206,10 +206,12 @@ async function callOpenAIApi(chunk, apiKey, oldConvo, question, trainDataText, m
   const response = await openai.createChatCompletion({
     model: modelName,
     messages: newMsgArr,
-    max_tokens: 500,
-    n: 1,
-    stop: null,
-    temperature: 0.5,
+  temperature: 1,
+  max_tokens: 256,
+  top_p: 1,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  stop: null,
   });
 
   return { content: response?.data?.choices[0]?.message?.content.trim(), tokens: response?.data?.usage?.total_tokens };
