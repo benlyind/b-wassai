@@ -1,11 +1,8 @@
-import query from '../../database/dbpromise.js'
-import fetch from 'node-fetch'
+import query from '../../database/dbpromise.js';
 import pkg from 'jsonwebtoken';
+import fs from 'fs';
+import AWS from 'aws-sdk';
 const { sign } = pkg;
-import fs from 'fs'
-import { OpenAIApi, Configuration } from 'openai'
-import path from 'path'
-import AWS from 'aws-sdk'
 
 const voiceArr = [
     { Id: 'Kevin', Name: 'Kevin', Engine: 'neural' },

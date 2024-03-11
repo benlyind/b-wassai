@@ -1,11 +1,10 @@
-import query from '../../database/dbpromise.js'
-import fetch from 'node-fetch'
+import query from '../../database/dbpromise.js';
 import pkg from 'jsonwebtoken';
+import fs from 'fs';
+import OpenAI from 'openai';
+import path from 'path';
+import Bard from './functionNew.js';
 const { sign } = pkg;
-import fs from 'fs'
-import { OpenAIApi, Configuration } from 'openai'
-import path from 'path'
-import Bard from './functionNew.js'
 
 function deleteFilePathIfExists(filePath) {
     fs.access(filePath, fs.constants.F_OK, (err) => {
@@ -210,16 +209,15 @@ function returnPost(promptArr) {
             const api = await query(`SELECT * FROM apikeys`, []);
             const openAiApi = api[0].openai_keys;
 
-            const configuration = new Configuration({
+
+
+            const openai = new OpenAI({
                 apiKey: openAiApi
             });
 
-
-            const openai = new OpenAIApi(configuration);
-
             console.log({ promptArr })
 
-            const completion = await openai.createChatCompletion({
+            const completion = await openai.chat.completions.create({
                 model: process.env.OPENAIMODEL || "gpt-3.5-turbo",
                 messages: promptArr
             });
