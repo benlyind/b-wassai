@@ -1,18 +1,18 @@
-import query from '../database/dbpromise.js'
-import fetch from 'node-fetch'
+import query from '../database/dbpromise.js';
+import fetch from 'node-fetch';
 import pkg from 'jsonwebtoken';
-const { sign } = pkg;
-import fs from 'fs'
-import { OpenAIApi, Configuration } from 'openai'
-import path, { resolve } from 'path'
-import nodemailer from 'nodemailer'
-import moment from 'moment'
-import officeParser from 'officeparser'
-import ReadText from 'text-from-image'
+import fs from 'fs';
+import OpenAI from 'openai';
+import path from 'path';
+import nodemailer from 'nodemailer';
+import moment from 'moment';
+import officeParser from 'officeparser';
+import ReadText from 'text-from-image';
 import { convert } from 'html-to-text';
-import mysql from 'mysql'
+import mysql from 'mysql';
 import { encodingForModel } from "js-tiktoken";
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI } from '@google/generative-ai';
+const { sign } = pkg;
 
 function isValidArrayFormatForGemini(arr) {
   // Check if arr is an array
@@ -170,15 +170,14 @@ function splitIntoChunksLicenseCode(text, modelName, tokens = 500) {
 }
 
 async function refindReply(keys, text, modelName) {
-  const configuration = new Configuration({
+
+  const openai = new OpenAI({
     apiKey: keys
   });
 
-  const openai = new OpenAIApi(configuration);
-
   const refineThis = [{ role: 'user', content: `Please remove duplicates from this and make the answer same :-\n\n${text}` }]
 
-  const response = await openai.createChatCompletion({
+  const response = await openai.chat.completions.create({
     model: modelName,
     messages: refineThis,
     max_tokens: 350,
@@ -194,7 +193,9 @@ async function callOpenAIApi(chunk, apiKey, oldConvo, question, trainDataText, m
   const configuration = new Configuration({
     apiKey: apiKey
   });
-  const openai = new OpenAIApi(configuration);
+  const openai = new OpenAI({
+    apiKey: keys
+  });
 
   const newQue = [
     { role: 'system', content: trainDataText, },
@@ -203,7 +204,7 @@ async function callOpenAIApi(chunk, apiKey, oldConvo, question, trainDataText, m
 
   const newMsgArr = oldConvo.concat(newQue);
 
-  const response = await openai.createChatCompletion({
+  const response = await openai.chat.completions.create({
     model: modelName,
     messages: newMsgArr,
   temperature: 1,
@@ -944,11 +945,13 @@ function returnPost(topic, language, words) {
 
       const prompt = `write a SEO friendly unique blog in ${words} words, topic is "${topic}" and language is "${language}". nothing write more than that write only title and content`;
 
-      const openai = new OpenAIApi(configuration);
+      const openai = new OpenAI({
+    apiKey: keys
+  });
 
 
 
-      const completion = await openai.createChatCompletion({
+      const completion = await openai.chat.completions.create({
         model: process.env.OPENAIMODEL,
         messages: [{ role: 'user', content: prompt }]
       });
@@ -1071,10 +1074,12 @@ function openAiImage(prompt, plan, numofImg) {
         apiKey: api[0].openai_keys,
       });
 
-      const openai = new OpenAIApi(configuration);
+      const openai = new OpenAI({
+    apiKey: keys
+  });
 
 
-      const response = await openai.createImage({
+      const response = await openai.images.generate({
         prompt: prompt,
         n: parseInt(numofImg) || 1,
         size: plan?.dalle_size || "256x256",
@@ -1283,13 +1288,15 @@ function openAiText(filePath, question) {
         apiKey: openAiApi
       });
 
-      const openai = new OpenAIApi(configuration);
+      const openai = new OpenAI({
+    apiKey: keys
+  });
 
       const data = await readJsonFile(filePath)
 
       console.log({ data: data })
 
-      const completion = await openai.createChatCompletion({
+      const completion = await openai.chat.completions.create({
         model: process.env.OPENAIMODEL,
         messages: data,
       });

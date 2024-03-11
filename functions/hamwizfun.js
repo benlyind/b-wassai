@@ -1,11 +1,9 @@
-import query from '../database/dbpromise.js'
-import fetch from 'node-fetch'
+import query from '../database/dbpromise.js';
+import fetch from 'node-fetch';
 import pkg from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
 const { sign } = pkg;
-import fs from 'fs'
-import { OpenAIApi, Configuration } from 'openai'
-import path, { resolve } from 'path'
-import Jimp from 'jimp'
 
 // request hamwiz text to image 
 async function makeTextImg(prompt, negative_prompt, model, bearerToken) {
